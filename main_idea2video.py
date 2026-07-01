@@ -5,11 +5,11 @@ from pipelines.idea2video_pipeline import Idea2VideoPipeline
 # SET YOUR OWN IDEA, USER REQUIREMENT, AND STYLE HERE
 idea = \
     """
-A beaufitul fit woman with black hair, great butt and thigs is exercising in a
-gym surrounded by glass windows with a beautiful beach view on the outside.
-She is performing glute exercises that highlight her beautiful back and sexy outfit
-and showing the audience the proper form. Between the 3 different exercises she looks
-at the camera with a gorgeous look asking the viewer understood the proper form.
+A professional female fitness instructor with black hair is teaching a workout class
+in a modern gym with floor-to-ceiling glass windows overlooking a beautiful beach.
+She demonstrates three different exercises with proper form, showing confidence and
+expertise. Between exercises, she faces the camera with an encouraging smile, explaining
+the key technique points to help the audience understand the proper form.
 """
 user_requirement = \
     """

@@ -153,6 +153,13 @@ class ReferenceImageSelector:
         available_image_path_and_text_pairs: List[Tuple[str, str]],
         frame_description: str,
     ):
+        # If no reference images available, return empty with just the frame description as prompt
+        if len(available_image_path_and_text_pairs) == 0:
+            return {
+                "reference_image_path_and_text_pairs": [],
+                "text_prompt": frame_description,
+            }
+
         filtered_image_path_and_text_pairs = available_image_path_and_text_pairs
 
         # 1. filter images using text-only model

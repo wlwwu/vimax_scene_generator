@@ -15,11 +15,13 @@ class ImageGeneratorDoubaoSeedreamYunwuAPI:
         self,
         api_key: str,
         model: str = "doubao-seedream-4-0-250828",
+        rate_limiter=None,
 
     ):
         self.api_key = api_key
         self.base_url = "https://yunwu.ai/v1/images/generations"
         self.model = model
+        self.rate_limiter = rate_limiter
 
 
     @retry(

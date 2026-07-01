@@ -3,19 +3,19 @@
 
 llm:
   model_provider: openai
-  model: <YOUR_LLM_MODEL>
-  base_url: <YOUR_LLM_BASE_URL>
-  api_key: ''
+  model: 'MiniMax-M3'
+  base_url: https://api.minimaxi.com/v1
+  api_key: <YOUR_API_KEY>
 
 image:
   model: <YOUR_IMAGE_MODEL>
-  base_url: <YOUR_IMAGE_BASE_URL>
-  api_key: ''
+  base_url: https://ark.cn-beijing.volces.com/api/v3
+  api_key: <YOUR_API_KEY>
 
 video:
-  model: <YOUR_VIDEO_MODEL>
-  base_url: <YOUR_VIDEO_BASE_URL>
-  api_key: ''
+  model: doubao-seedance-1-0-pro-fast-251015
+  base_url: https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks
+  api_key: <YOUR_API_KEY>
 
 # Optional. Fill these only when using novel2video planning.
 embedding:

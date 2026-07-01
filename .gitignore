@@ -13,10 +13,31 @@ wheels/
 .working_dir/
 .vimax/
 .test/
+
 # Node dependencies
 node_modules/
 
 # Local agent secrets
 configs/*.local.json
 configs/*.local.yaml
-!configs/agent.local.yaml
+configs/idea2video.yaml
+
+# Database
+scenes.db
+
+# Outputs and uploads (large media files)
+outputs/
+uploads/
+
+# Large asset files
+assets/scenes/
+assets/vimax.png
+
+# Gradio
+.gradio/
+
+# Lock file
+uv.lock
+
+# Benchmark data
+vimax_benchmark/

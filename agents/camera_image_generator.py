@@ -192,19 +192,22 @@ class CameraImageGenerator:
         video_name = os.path.basename(transition_video_path).split('.')[0]
         second_video_path = os.path.join(output_dir, f"{video_name}-Scene-002.mp4")
         if os.path.exists(second_video_path):
-            # use first frame of second shot as new camera image
-            with VideoFileClip(second_video_path) as clip:
-                ff = clip.get_frame(0)
-            ff = Image.fromarray(ff.astype('uint8'), 'RGB')
-            return ImageOutput(fmt="pil", ext="png", data=ff)
-        else:
-            # use last frame of transition video to instead
-            with VideoFileClip(transition_video_path) as clip:
-                lf_time = clip.duration - (1 / clip.fps)
-                lf_time = max(0, lf_time)
-                lf = clip.get_frame(lf_time)
-            lf = Image.fromarray(lf.astype('uint8'), 'RGB')
-            return ImageOutput(fmt="pil", ext="png", data=lf)
+            try:
+                # use first frame of second shot as new camera image
+                with VideoFileClip(second_video_path) as clip:
+                    ff = clip.get_frame(0)
+                ff = Image.fromarray(ff.astype('uint8'), 'RGB')
+                return ImageOutput(fmt="pil", ext="png", data=ff)
+            except (IOError, OSError) as e:
+                logging.warning(f"Failed to read split video {second_video_path}, falling back to transition video last frame: {e}")
+
+        # use last frame of transition video instead
+        with VideoFileClip(transition_video_path) as clip:
+            lf_time = clip.duration - (1 / clip.fps)
+            lf_time = max(0, lf_time)
+            lf = clip.get_frame(lf_time)
+        lf = Image.fromarray(lf.astype('uint8'), 'RGB')
+        return ImageOutput(fmt="pil", ext="png", data=lf)
 
 
     async def generate_first_frame(

@@ -58,10 +58,11 @@ https://github.com/user-attachments/assets/5bad46b2-8276-4e1d-9480-3522640744b2
 
 ### 📰 **News**
 
-- **2026-06-09** 📄 Technical report released.
+- **2026-06-09** 📄 Technical report released — [arXiv:2606.07649](https://arxiv.org/abs/2606.07649).
 - **2026-06-08** 🤖 Agents Loop + TUI workflow integrated for interactive planning, revision, rendering control, session reuse, and context compaction.
 - **2026-06-07** 📖 Novel2Video workflow released.
 - **2026-06-01** 🎬 Google Omni video generator support added.
+- **2026-05-XX** 🤳 AutoCameo (Image2Video) pipeline and Gradio Web UI released.
 - **2026-03-23** ⚡ MiniMax chat model provider support added.
 
 ---
@@ -74,6 +75,8 @@ https://github.com/user-attachments/assets/5bad46b2-8276-4e1d-9480-3522640744b2
 - [🔮 Demos](#Video-Demos-Generated-from-Scratch)
 - [🏗️ Architecture](#️-architecture)
 - [🚀 Quick Start](#quick-start)
+- [📂 Project Structure](#-project-structure)
+- [📖 Citation](#-citation)
 
 ---
 ## 💡 Key Features
@@ -278,7 +281,6 @@ ViMax now also includes an **Agents Loop + TUI** workflow for interactive planni
 
 ### ☄️ **RoadMap**
 
-- 🚧 🖥️ **Web frontend interface**
 - 🚧 🎬 **Seedance 2.0 video generator support**
 - 🚧 🖼️ **GPT-Image 2 image generator support**
 
@@ -404,54 +406,85 @@ Parallel processing for sequential shots captured from the same camera enables h
 
 ```
 OS: Linux, Windows
+Python: >=3.12
 ```
 
 ### 📥 **Clone and Install**
-We use uv to manage the environment. For uv installation, please refer to the https://docs.astral.sh/uv/getting-started/installation/.
+We use [uv](https://docs.astral.sh/uv/getting-started/installation/) to manage the environment.
 ```bash
 git clone https://github.com/HKUDS/ViMax.git
 cd ViMax
 uv sync
 ```
 
+For the TUI, install the Node.js dependencies as well:
+```bash
+cd ui && npm install && cd ..
+```
 
-### 🧠 **Agent TUI**
-ViMax also provides a minimal TUI for interactive agent-based video creation. Configure the model and API key information in `configs/agent.local.yaml`, including the LLM, image generator, and video generator, as shown below.
+---
+
+### 🧠 **Agent TUI (Interactive Mode)**
+ViMax provides a terminal UI for interactive agent-based video creation. Configure the model and API key information in `configs/agent.local.yaml` (copy from `configs/agent.example.yaml`):
 ```yaml
 llm:
-  model_provider: openai
-  model: <YOUR_LLM_MODEL>
+  model_provider: openai          # openai | minimax
+  model: <YOUR_LLM_MODEL>        # e.g. gpt-5.5, MiniMax-M3
   base_url: <YOUR_LLM_BASE_URL>
   api_key: <YOUR_API_KEY>
 
 image:
-  model: <YOUR_IMAGE_MODEL>
+  model: <YOUR_IMAGE_MODEL>       # e.g. gemini-3.1-flash-image-preview
   base_url: <YOUR_IMAGE_BASE_URL>
   api_key: <YOUR_API_KEY>
 
 video:
-  model: <YOUR_VIDEO_MODEL>
+  model: <YOUR_VIDEO_MODEL>       # e.g. veo3.1-fast
   base_url: <YOUR_VIDEO_BASE_URL>
+  api_key: <YOUR_API_KEY>
+
+# Optional — only needed for Novel2Video pipeline
+embedding:
+  model_provider: openai
+  model: <YOUR_EMBEDDING_MODEL>
+  base_url: <YOUR_EMBEDDING_BASE_URL>
+  api_key: <YOUR_API_KEY>
+
+reranker:
+  model: <YOUR_RERANKER_MODEL>
+  base_url: <YOUR_RERANKER_BASE_URL>
   api_key: <YOUR_API_KEY>
 ```
 
 Then, start the TUI from the ViMax root directory:
 ```bash
-vimax tui
+vimax tui                         # Resume active session
+vimax tui new                     # Create and activate a new session
+vimax tui resume                  # Resume the active session
+vimax tui resume <session_id>     # Resume a specific session
 ```
 
-Start a new session or resume an existing one:
+You can also provide API keys through environment variables instead of the YAML file:
+
+| Variable | Purpose |
+|----------|---------|
+| `VIMAX_LLM_API_KEY` | LLM provider key |
+| `VIMAX_IMAGE_API_KEY` | Image generator key |
+| `VIMAX_VIDEO_API_KEY` | Video generator key |
+| `VIMAX_EMBEDDING_API_KEY` | Embedding model key |
+| `VIMAX_RERANKER_API_KEY` | Reranker model key |
+
+---
+
+### 🎯 **Pipeline Mode (Direct Execution)**
+
+#### Idea → Video
+Configure `configs/idea2video.yaml` with your chat model, image generator, and video generator, then edit and run:
 ```bash
-vimax tui new
-vimax tui resume
-vimax tui resume <session_id>
+uv run python main_idea2video.py
 ```
 
-You can also keep `configs/agent.local.yaml` empty and provide the same values through environment variables, such as `VIMAX_LLM_API_KEY`, `VIMAX_IMAGE_API_KEY`, and `VIMAX_VIDEO_API_KEY`.
-
-### 🎯 **Usage**
-main_idea2video.py is used to convert your ideas into videos.
-You need to configure the model and API key information in the configs/idea2video.yaml file, including three parts—the chat model, the image generator, and the video generator, as shown below
+Example configuration (`configs/idea2video.yaml`):
 ```yaml
 chat_model:
   init_args:
@@ -473,38 +506,139 @@ video_generator:
 working_dir: .working_dir/idea2video
 ```
 
-Then, provide a simple yet thoughtful idea and the corresponding creative requirements in main_idea2video.py.
-```bash
-idea = \
-"""
+Set your idea and requirements in `main_idea2video.py`:
+```python
+idea = """
 If a cat and a dog are best friends, what would happen when they meet a new cat?
 """
-user_requirement = \
-"""
+user_requirement = """
 For children, do not exceed 3 scenes.
 """
 style = "Cartoon"
 ```
 
-main_script2video.py generates a video based on a specific script.
-You similarly need to set up the API configuration in configs/script2video.yaml file. Then, provide a scene script and the corresponding creative requirements in main_script2video.py, as shown below.
-```python
-script = \
-"""
-EXT. SCHOOL GYM - DAY
-A group of students are practicing basketball in the gym. The gym is large and open, with a basketball hoop at one end and a large crowd of spectators at the other end. John (18, male, tall, athletic) is the star player, and he is practicing his dribble and shot. Jane (17, female, short, athletic) is the assistant coach, and she is helping John with his practice. The other students are watching the practice and cheering for John.
-John: (dribbling the ball) I'm going to score a basket!
-Jane: (smiling) Good job, John!
-John: (shooting the ball) Yes!
-...
-"""
-user_requirement = \
-"""
-Fast-paced with no more than 20 shots.
-"""
-style = "Animate Style"
+#### Script → Video
+Configure `configs/script2video.yaml`, then:
+```bash
+uv run python main_script2video.py
 ```
 
+Provide a scene script (screenplay format) and creative requirements in `main_script2video.py`.
+
+#### Image → Video (AutoCameo)
+Generate a video from a person photo placed in a scene:
+```bash
+uv run python main_image2video.py --person <person.jpg> --scene <street.jpg>
+uv run python main_image2video.py --person <person.jpg> --prompt "scene description"
+```
+
+#### Gradio Web UI
+A full web interface for the AutoCameo workflow with scene management and generation history:
+```bash
+uv run python app.py
+```
+
+---
+
+### 🔌 **Supported Providers**
+
+#### Image Generators
+| Class | Provider | Model |
+|-------|----------|-------|
+| `ImageGeneratorNanobananaGoogleAPI` | Google Gemini | gemini-2.5-flash / gemini-3.1-flash-image-preview |
+| `ImageGeneratorMiniMaxAPI` | MiniMax | image-01 (character-ref consistency) |
+| `ImageGeneratorDoubaoSeedreamYunwuAPI` | Doubao Seedream | via Yunwu relay |
+| `ImageGeneratorNanobananaYunwuAPI` | Google via Yunwu | Gemini via relay |
+
+#### Video Generators
+| Class | Provider | Model |
+|-------|----------|-------|
+| `VideoGeneratorVeoGoogleAPI` | Google Veo | veo3 / veo3.1-fast |
+| `VideoGeneratorDoubaoSeedanceYunwuAPI` | Doubao Seedance | seedance-1-5-pro (T2V, I2V, longframe) |
+| `VideoGeneratorOmniYunwuAPI` | Omni | via Yunwu relay |
+| `VideoGeneratorOpenRouterAPI` | OpenRouter | Any video model on OpenRouter |
+| `VideoGeneratorVeoYunwuAPI` | Google Veo via Yunwu | Veo relay |
+
+#### Chat Models
+Any OpenAI-compatible API is supported. Tested providers include:
+- **OpenRouter** (Gemini, GPT, Claude, etc.)
+- **MiniMax** (M3, M2.7, M2.7-highspeed)
+- **Yunwu** (GPT-5.5, etc.)
+- **Direct OpenAI API**
+
+---
+
+### 🧪 **Running Tests**
+```bash
+uv run pytest tests/
+```
+
+---
+
+## 📂 Project Structure
+
+```
+ViMax/
+├── main_agent.py              # Agent loop CLI (JSONL streaming)
+├── main_idea2video.py         # Idea → Video pipeline entry
+├── main_script2video.py       # Script → Video pipeline entry
+├── main_image2video.py        # Image → Video (AutoCameo) CLI
+├── app.py                     # Gradio Web UI for AutoCameo
+├── vimax                      # TUI launcher script (bash)
+├── configs/
+│   ├── agent.example.yaml     # Agent runtime config template
+│   ├── agent.local.yaml       # Local agent config (gitignored)
+│   ├── idea2video.yaml        # Idea2Video pipeline config
+│   ├── script2video.yaml      # Script2Video pipeline config
+│   ├── idea2video_minimax.yaml
+│   └── script2video_minimax.yaml
+├── agent_runtime/             # Core agent execution framework
+│   ├── loop.py                # Multi-turn agent loop with streaming
+│   ├── config.py              # Config management + env var fallback
+│   ├── tools.py               # Tool registry & execution
+│   ├── session_index.py       # Session persistence (.vimax/sessions.json)
+│   ├── context_compactor.py   # Token-aware context summarization
+│   ├── prompts.py             # Prompt construction
+│   └── models.py              # Data models
+├── agents/                    # Individual agent implementations
+│   ├── screenwriter.py        # Story & script generation
+│   ├── storyboard_artist.py   # Shot-level visual planning
+│   ├── character_extractor.py # Character parsing from scripts
+│   ├── character_portraits_generator.py
+│   ├── camera_image_generator.py
+│   ├── reference_image_selector.py
+│   ├── best_image_selector.py # MLLM-based consistency check
+│   ├── novel_compressor.py    # Novel chunking & compression
+│   ├── event_extractor.py     # Narrative event extraction
+│   ├── scene_extractor.py     # Scene boundary detection
+│   └── global_information_planner.py
+├── pipelines/                 # End-to-end orchestration
+│   ├── idea2video_pipeline.py
+│   ├── script2video_pipeline.py
+│   └── novel2movie_pipeline.py
+├── tools/                     # Image/video generator backends
+│   ├── protocols.py           # ImageGenerator / VideoGenerator protocols
+│   ├── render_backend.py      # Factory for instantiating generators
+│   └── ...                    # Provider-specific implementations
+├── interfaces/                # Shared data models (Scene, Frame, Shot, etc.)
+├── prompts/                   # System prompts (agent.md, workflow.md)
+├── ui/                        # React/Ink TUI (TypeScript)
+├── tests/                     # pytest test suite
+└── vimax_benchmark/           # 35-story benchmark dataset
+```
+
+---
+
+## 📖 Citation
+
+```bibtex
+@article{vimax2026,
+  title={ViMax: Agentic Video Generation},
+  year={2026},
+  eprint={2606.07649},
+  archivePrefix={arXiv}
+}
+```
 
 ---
 
@@ -513,4 +647,3 @@ style = "Animate Style"
 <p align="center">
   <em> ❤️ Thanks for visiting ✨ ViMax!</em><br><br>
 </p>
-

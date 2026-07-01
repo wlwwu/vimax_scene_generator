@@ -4,6 +4,7 @@ from .render_backend import RenderBackend
 
 # image generators
 from .image_generator_doubao_seedream_yunwu_api import ImageGeneratorDoubaoSeedreamYunwuAPI
+from .image_generator_minimax_api import ImageGeneratorMiniMaxAPI
 from .image_generator_nanobanana_google_api import ImageGeneratorNanobananaGoogleAPI
 from .image_generator_nanobanana_yunwu_api import ImageGeneratorNanobananaYunwuAPI
 
@@ -23,6 +24,7 @@ __all__ = [
     "VideoGenerator",
     "RenderBackend",
     "ImageGeneratorDoubaoSeedreamYunwuAPI",
+    "ImageGeneratorMiniMaxAPI",
     "ImageGeneratorNanobananaGoogleAPI",
     "ImageGeneratorNanobananaYunwuAPI",
     "RerankerBgeSiliconapi",

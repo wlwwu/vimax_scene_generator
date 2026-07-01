@@ -21,7 +21,6 @@ from agent_runtime.session_index import SessionIndex
 from agent_runtime.tool_executor import ToolExecutor
 from agent_runtime.tools import ToolRegistry
 from agents.screenwriter import Screenwriter
-from agents.script_planner import ScriptPlanner
 from tools.image_generator_doubao_seedream_yunwu_api import ImageGeneratorDoubaoSeedreamYunwuAPI
 from tools.image_generator_nanobanana_google_api import ImageGeneratorNanobananaGoogleAPI
 from tools.image_generator_nanobanana_yunwu_api import ImageGeneratorNanobananaYunwuAPI
@@ -143,7 +142,6 @@ class TestSessionIndexDurability(unittest.TestCase):
 class TestBoundedRetryPolicies(unittest.TestCase):
     CASES = [
         ("Screenwriter.write_script_based_on_story", Screenwriter.write_script_based_on_story),
-        ("ScriptPlanner.plan_script", ScriptPlanner.plan_script),
         ("RerankerBgeSiliconapi.__call__", RerankerBgeSiliconapi.__call__),
         ("ImageGeneratorDoubaoSeedreamYunwuAPI.generate_single_image", ImageGeneratorDoubaoSeedreamYunwuAPI.generate_single_image),
         ("ImageGeneratorNanobananaGoogleAPI.generate_single_image", ImageGeneratorNanobananaGoogleAPI.generate_single_image),

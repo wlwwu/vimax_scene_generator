@@ -16,6 +16,7 @@ class VideoGeneratorDoubaoSeedanceYunwuAPI:
         max_create_attempts: int = 3,
         poll_interval: int = 2,
         max_poll_attempts: int = 300,
+        rate_limiter=None,
     ):
         self.api_key = api_key
         self.t2v_model = t2v_model
@@ -24,6 +25,7 @@ class VideoGeneratorDoubaoSeedanceYunwuAPI:
         self.max_create_attempts = max_create_attempts
         self.poll_interval = poll_interval
         self.max_poll_attempts = max_poll_attempts
+        self.rate_limiter = rate_limiter
 
 
     async def create_video_generation_task(
@@ -50,19 +52,25 @@ class VideoGeneratorDoubaoSeedanceYunwuAPI:
         elif len(reference_image_paths) == 1:
             model = self.ff2v_model
         elif len(reference_image_paths) == 2:
-            model = self.flf2v_model
+            if self.flf2v_model == self.ff2v_model:
+                # Model doesn't support flf2v, fall back to ff2v with first frame only
+                logging.warning("flf2v not supported by model, falling back to ff2v with first frame only.")
+                model = self.ff2v_model
+                reference_image_paths = reference_image_paths[:1]
+            else:
+                model = self.flf2v_model
         else:
             raise ValueError("reference_image_paths must contain 1 or 2 images.")
 
         logging.info(f"Calling {model} to generate video...")
 
-        url = "https://yunwu.ai/volc/v1/contents/generations/tasks"
+        url = "https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks"
 
 
         content = [
             {
                 "type": "text",
-                "text": prompt + f" --rs {resolution} --rt {aspect_ratio} --dur {duration}  --fps {fps}  --wm false --seed -1 --cf false"
+                "text": prompt + f" --resolution {resolution} --duration {duration} --camerafixed false --watermark false"
             }
         ]
         if len(reference_image_paths) >= 1:
@@ -142,7 +150,7 @@ class VideoGeneratorDoubaoSeedanceYunwuAPI:
         Returns:
             Video URL string
         """
-        url = f"https://yunwu.ai/volc/v1/contents/generations/tasks/{task_id}"
+        url = f"https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks/{task_id}"
         headers = {
             'Authorization': f'Bearer {self.api_key}',
         }

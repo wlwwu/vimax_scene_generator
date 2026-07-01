@@ -1,3 +1,6 @@
+# Idea2Video pipeline configuration template.
+# Copy this to idea2video.yaml and fill in your API keys.
+
 chat_model:
   init_args:
     model: 'MiniMax-M3'
